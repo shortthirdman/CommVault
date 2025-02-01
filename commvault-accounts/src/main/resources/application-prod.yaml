@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    name: commvault-accounts
+  data:
+    redis:
+      connect-timeout: 300
+      host: localhost
+      port: 6379
+      jedis:
+        pool:
+          enabled: true
+          max-active: 6
+          max-idle: 4
+      username: default
+      password: admin
+      database: 0
+      url: "redis://default:admin@localhost:6379"
+
+logging:
+  file:
+    name: ${logging.file.path}/app.log
+    path: ${user.home}/shortthirdman/commvault/logs
