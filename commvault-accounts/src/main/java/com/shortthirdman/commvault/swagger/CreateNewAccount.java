@@ -14,8 +14,6 @@ import java.lang.annotation.Target;
 
 import static com.shortthirdman.commvault.common.CommVaultSwaggerConstants.*;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Create a new user account details", tags = {"Accounts"})
 @ApiResponses(value = {
         @ApiResponse(responseCode = RESPONSE_CODE_201, description = "New user profile account",
@@ -25,7 +23,7 @@ import static com.shortthirdman.commvault.common.CommVaultSwaggerConstants.*;
         @ApiResponse(responseCode = RESPONSE_CODE_401, description = UNAUTHORIZED, useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_403, description = FORBIDDEN, useReturnTypeSchema = true, content = {})
 })
-@Parameters(
-)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface CreateNewAccount {
 }

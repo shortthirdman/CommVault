@@ -12,16 +12,16 @@ import java.lang.annotation.Target;
 
 import static com.shortthirdman.commvault.common.CommVaultSwaggerConstants.*;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Operation(summary = "Retrieves user account profiles by account type", tags = {"Accounts"})
+@Operation(summary = "Retrieves all user account profiles", tags = {"Accounts"})
 @ApiResponses(value = {
-        @ApiResponse(responseCode = RESPONSE_CODE_200, description = "Successful retrieval of user accounts by type",
+        @ApiResponse(responseCode = RESPONSE_CODE_200, description = "Successful retrieval of all user accounts",
                 useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_500, description = INTERNAL_SERVER_ERROR, useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_400, description = RESOURCE_NOT_FOUND_ERROR, useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_401, description = UNAUTHORIZED, useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_403, description = FORBIDDEN, useReturnTypeSchema = true, content = {})
 })
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface GetAllAccounts {
 }

@@ -16,4 +16,6 @@ public interface AccountsService {
     void deleteUserAccount(UserAccount userAccount);
 
     void updateUserAccount(UserAccount userAccount);
+
+    void deleteUserAccount(String orgId);
 }

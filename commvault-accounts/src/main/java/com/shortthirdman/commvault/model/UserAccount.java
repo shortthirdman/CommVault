@@ -1,8 +1,6 @@
 // Copyright (c) ShortThirdMan 2025. All rights reserved.
 package com.shortthirdman.commvault.model;
 
-import jakarta.validation.constraints.AssertFalse;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;

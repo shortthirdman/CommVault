@@ -13,9 +13,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+import static com.shortthirdman.commvault.common.CommVaultConstants.ASTERISK;
 import static com.shortthirdman.commvault.common.CommVaultConstants.COLON;
 
 @Service
@@ -30,18 +31,23 @@ public class AccountsServiceImpl implements AccountsService {
      */
     @Override
     public List<UserAccount> allUserAccounts() {
-        List<UserAccount> userAccounts = null;
+        log.info("Retrieving all user accounts from cache");
+        List<UserAccount> userAccounts = new ArrayList<>();
         StringBuilder cacheKey = new StringBuilder("account:");
         try {
-            var size = redisTemplate.keys(cacheKey.toString()).size();
-            log.info("Total user accounts: {}", size);
-            userAccounts = (List<UserAccount>) redisTemplate.opsForValue().get(cacheKey.toString());
-            if (Objects.isNull(userAccounts) && userAccounts.isEmpty()) {
-                throw new RecordsNotFoundException("No user accounts found.");
+            cacheKey.append(ASTERISK);
+            var keys = redisTemplate.keys(cacheKey.toString());
+            log.info("Total user accounts for key pattern {}: {}", cacheKey, keys.size());
+            for (String k : keys) {
+                UserAccount obj = redisTemplate.opsForValue().get(k);
+                userAccounts.add(obj);
+            }
+            if (userAccounts.isEmpty()) {
+                throw new RecordsNotFoundException("No user accounts found for key pattern " + cacheKey);
             }
         } catch (Exception e) {
-            log.error("Unable to get user accounts from redis: {}", ExceptionUtils.getFullStackTrace(e));
-            throw new RecordsNotFoundException("");
+            log.error("Unable to get user accounts from cache: {}", ExceptionUtils.getFullStackTrace(e));
+            throw new RecordsNotFoundException(e.getMessage());
         }
 
         return userAccounts;
@@ -53,16 +59,29 @@ public class AccountsServiceImpl implements AccountsService {
      */
     @Override
     public List<UserAccount> userAccountsByOrganization(String orgId) {
-        List<UserAccount> userAccounts = List.of();
-        if (userAccounts.isEmpty()) {
-            throw new RecordsNotFoundException("No user accounts found for the organization " + orgId);
+        List<UserAccount> userAccounts = new ArrayList<>();
+        StringBuilder cacheKey = new StringBuilder("account:");
+        try {
+            cacheKey.append(orgId);
+            var keys = redisTemplate.keys(cacheKey.toString());
+            log.info("Total user accounts for key pattern with organization {}: {}", cacheKey, keys.size());
+            for (String k : keys) {
+                UserAccount obj = redisTemplate.opsForValue().get(k);
+                userAccounts.add(obj);
+            }
+            if (userAccounts.isEmpty()) {
+                throw new RecordsNotFoundException("No user accounts found for the organization " + orgId);
+            }
+        } catch (Exception e) {
+            log.error("Unable to get user accounts with organization {}: {}", orgId, ExceptionUtils.getFullStackTrace(e));
+            throw new RecordsNotFoundException(e.getMessage());
         }
 
         return userAccounts;
     }
 
     /**
-     * @param userAccount
+     * @param userAccount the new user account to create
      */
     @Override
     public void createUserAccount(UserAccount userAccount) {
@@ -72,7 +91,7 @@ public class AccountsServiceImpl implements AccountsService {
             if (userAccount.getCreatedTime() == null) {
                 userAccount.setCreatedTime(CommVaultUtils.currentDateTime());
             }
-            cacheKey.append(userAccount.getId()).append(COLON).append(userAccount.getOrgId());
+            cacheKey.append(userAccount.getOrgId());
             redisTemplate.opsForValue().set(cacheKey.toString(), userAccount);
             log.info("New user account for key {} saved", cacheKey);
         } catch (Exception e) {
@@ -82,13 +101,14 @@ public class AccountsServiceImpl implements AccountsService {
     }
 
     /**
-     * @param userAccount
+     * @param userAccount the user account to delete
      */
     @Override
     public void deleteUserAccount(UserAccount userAccount) {
         log.info("Deleting user account with OrgID {}", userAccount.getOrgId());
         StringBuilder cacheKey = new StringBuilder("account:");
         try {
+            cacheKey.append(userAccount.getOrgId());
             redisTemplate.opsForValue().getAndDelete(cacheKey.toString());
             log.info("User account with key {} deleted successfully", cacheKey);
         } catch (Exception e) {
@@ -102,6 +122,29 @@ public class AccountsServiceImpl implements AccountsService {
      */
     @Override
     public void updateUserAccount(UserAccount userAccount) {
+        log.info("Attempting to update user account with organization {}", userAccount.getOrgId());
+        StringBuilder cacheKey = new StringBuilder("account:");
+        try {
+            cacheKey.append(userAccount.getOrgId());
+        } catch (Exception e) {
+            log.error("Unable to update the user account with key {}: {}", cacheKey, ExceptionUtils.getFullStackTrace(e));
+            throw new CommVaultException("Account with key " + cacheKey + "could not be updated");
+        }
+    }
 
+    /**
+     * @param orgId the organization identifier
+     */
+    @Override
+    public void deleteUserAccount(String orgId) {
+        log.info("Attempting to delete user account with OrgID {}", orgId);
+        StringBuilder cacheKey = new StringBuilder("account:");
+        try {
+            cacheKey.append(orgId).append(COLON);
+            redisTemplate.opsForValue().getAndDelete(cacheKey.toString());
+        } catch (Exception e) {
+            log.error("Unable to delete the user account with organization {}: {}", orgId, ExceptionUtils.getFullStackTrace(e));
+            throw new CommVaultException("Account with key " + cacheKey + "could not be deleted");
+        }
     }
 }

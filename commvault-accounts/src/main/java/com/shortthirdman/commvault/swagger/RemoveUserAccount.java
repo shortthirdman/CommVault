@@ -13,8 +13,6 @@ import java.lang.annotation.Target;
 
 import static com.shortthirdman.commvault.common.CommVaultSwaggerConstants.*;
 
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Delete user account details", tags = {"Accounts"})
 @ApiResponses(value = {
         @ApiResponse(responseCode = RESPONSE_CODE_200, description = "Successful removal of existing user account",
@@ -24,5 +22,7 @@ import static com.shortthirdman.commvault.common.CommVaultSwaggerConstants.*;
         @ApiResponse(responseCode = RESPONSE_CODE_401, description = UNAUTHORIZED, useReturnTypeSchema = true, content = {}),
         @ApiResponse(responseCode = RESPONSE_CODE_403, description = FORBIDDEN, useReturnTypeSchema = true, content = {})
 })
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface RemoveUserAccount {
 }

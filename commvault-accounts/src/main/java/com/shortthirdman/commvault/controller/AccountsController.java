@@ -4,17 +4,14 @@ package com.shortthirdman.commvault.controller;
 import com.shortthirdman.commvault.dto.CommVaultApiResponse;
 import com.shortthirdman.commvault.model.UserAccount;
 import com.shortthirdman.commvault.service.AccountsService;
-import com.shortthirdman.commvault.swagger.CreateNewAccount;
-import com.shortthirdman.commvault.swagger.GetAccountsByType;
-import com.shortthirdman.commvault.swagger.GetAllAccounts;
-import com.shortthirdman.commvault.swagger.RemoveUserAccount;
-import com.shortthirdman.commvault.swagger.UpdateUserAccount;
+import com.shortthirdman.commvault.swagger.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +37,7 @@ public class AccountsController {
     private final AccountsService accountsService;
 
     @GetAllAccounts
-    @GetMapping(path = {"/all", ""})
+    @GetMapping(path = {""})
     public ResponseEntity<CommVaultApiResponse> getUserAccounts() {
         CommVaultApiResponse response = CommVaultApiResponse.builder()
                 .data(accountsService.allUserAccounts())
@@ -63,17 +60,28 @@ public class AccountsController {
         return ResponseEntity.ok(response);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
+    @GetOrgUserAccount
+    @GetMapping(path = "/organization/{orgId}")
+    public ResponseEntity<CommVaultApiResponse> getOrgUserAccount(@PathVariable(name = "orgId") String orgId) {
+        List<UserAccount> accountsByType = accountsService.userAccountsByOrganization(orgId);
+        CommVaultApiResponse response = CommVaultApiResponse.builder()
+                .data(accountsByType)
+                .status(SUCCESS)
+                .message("")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @CreateNewAccount
     @PostMapping(path = "/new")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CommVaultApiResponse> addNewUserAccount(@Valid @RequestBody UserAccount account) {
         accountsService.createUserAccount(account);
         CommVaultApiResponse response = CommVaultApiResponse.builder()
                 .status(SUCCESS)
-                .message("")
-                .description("")
+                .message("New user account created successfully")
                 .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @UpdateUserAccount
@@ -89,9 +97,9 @@ public class AccountsController {
     }
 
     @RemoveUserAccount
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<CommVaultApiResponse> deleteUserAccount(@PathVariable String id) {
-        accountsService.deleteUserAccount(null);
+    @DeleteMapping(path = "/{orgId}")
+    public ResponseEntity<CommVaultApiResponse> deleteUserAccount(@PathVariable(name = "orgId") @NonNull String orgId) {
+        accountsService.deleteUserAccount(orgId);
         CommVaultApiResponse response = CommVaultApiResponse.builder()
                 .status(SUCCESS)
                 .message("")
