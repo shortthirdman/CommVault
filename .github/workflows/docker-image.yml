@@ -20,8 +20,11 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
     - name: Build the Docker image
       run: |
         cd commvault-accounts
-        docker build . --rm --compress --file Dockerfile-prod --tag ${{ env.IMAGE_NAME }}:1.0.0-DEV.1
+        mvn clean install -DskipTests
+        docker build . --rm --compress --file Dockerfile-prod --tag ${{ env.IMAGE_NAME | toLowerCase }}:1.0.0-DEV.1
