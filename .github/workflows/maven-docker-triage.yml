@@ -10,8 +10,8 @@ name: CI
 
 on:
   workflow_dispatch:
-  # push:
-    # branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
+  push:
+    branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
   pull_request:
     branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
 
@@ -24,11 +24,13 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
       id-token: write
       attestations: write
+
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
@@ -43,12 +45,12 @@ jobs:
     - name: Build with Maven
       run: mvn -B clean package --file commvault-accounts/pom.xml
       
-    # - name: Attest Maven build provenance
-      # uses: actions/attest-build-provenance@v2
-      # with:
-        # show-summary: true
-        # subject-path: '${{ github.workspace }}/commvault-accounts/target/commvault-accounts-**.jar'
-        # push-to-registry: false
+    - name: Attest Maven build provenance
+      uses: actions/attest-build-provenance@v2
+      with:
+        show-summary: true
+        subject-path: '${{ github.workspace }}/commvault-accounts/target/commvault-accounts-**.jar'
+        push-to-registry: false
     
     - name: Build the Docker image
       run: docker build commvault-accounts/. --rm --compress --file commvault-accounts/Dockerfile-prod --tag ${{ env.IMAGE_NAME | toLowerCase }}:latest
