@@ -1,0 +1,19 @@
+# Add bdd related properties here if necessary
+server:
+  port: 8082
+  forward-headers-strategy: framework
+
+
+spring:
+  profiles:
+    active: integration
+  config:
+    activate:
+      on-profile: integration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  devtools:
+    restart:
+      enabled: true

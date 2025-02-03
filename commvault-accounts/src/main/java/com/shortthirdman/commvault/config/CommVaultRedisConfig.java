@@ -3,24 +3,26 @@ package com.shortthirdman.commvault.config;
 
 import com.shortthirdman.commvault.model.UserAccount;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisClientConfig;
-import redis.clients.jedis.UnifiedJedis;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+
+import static com.shortthirdman.commvault.common.CommVaultConstants.COLON;
 
 @Slf4j
 @Configuration
@@ -34,6 +36,21 @@ public class CommVaultRedisConfig {
 
     @Value("${spring.data.redis.port}")
     private int redisPort;
+
+//    @Bean(destroyMethod = "shutdown")
+//    public RedissonClient redissonClient(RedisProperties redisProperties) {
+//        Config redissonConfig = new Config()
+//                //.setCodec(ProtobufRedisCodec.INSTANCE)
+//                .setExecutor(Executors.newSingleThreadExecutor(new CustomizableThreadFactory("RedisExecutor-")));
+//
+//        redissonConfig
+//                .useSingleServer()
+//                .setAddress(Objects.requireNonNullElse(
+//                        redisProperties.getUrl(),
+//                        "redis://" + redisProperties.getHost() + COLON + redisProperties.getPort()
+//                ));
+//        return Redisson.create(redissonConfig);
+//    }
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {

@@ -18,6 +18,6 @@ public class CommVaultInterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         log.debug("Configuring interceptors for CommVault");
         registry.addInterceptor(headerInterceptor)
-                .addPathPatterns("/commvault/api/accounts/**");
+                .addPathPatterns("/commvault/api/accounts/test-account/**");
     }
 }
