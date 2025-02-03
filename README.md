@@ -24,3 +24,9 @@ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 --restart unless-stop
 ```sh
 docker run -d --name redis-stack-server -p 6379:6379 --restart unless-stopped -e REDIS_ARGS="--requirepass admin --protected-mode yes --save 60 1000 --appendonly yes --loglevel warning" -e REDISTIMESERIES_ARGS="RETENTION_POLICY=20" redis/redis-stack-server:6.2.6-v17
 ```
+
+#### Docker Build
+
+```
+docker build --rm --compress -t shortthirdman/commvault:latest .
+```
