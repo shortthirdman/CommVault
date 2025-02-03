@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
   # push:
     # branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
-  # pull_request:
-    # branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
 
 env:
   # Use docker.io for Docker Hub if empty
