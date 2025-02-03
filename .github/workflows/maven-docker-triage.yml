@@ -53,7 +53,7 @@ jobs:
         push-to-registry: false
     
     - name: Build the Docker image
-      run: docker build commvault-accounts/. --rm --compress --file commvault-accounts/Dockerfile-prod --tag ${{ env.IMAGE_NAME | toLowerCase }}:latest
+      run: docker build commvault-accounts/. --rm --compress --file commvault-accounts/Dockerfile-prod --tag shortthirdman/commvault:latest
     
     - name: Cleanup Docker resources
       run: docker system prune -a -f
