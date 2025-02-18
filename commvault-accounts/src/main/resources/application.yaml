@@ -22,6 +22,8 @@ info:
     version: "@project.version@"
     author: "@project.organization.name@"
     license: "@project.licenses[0].name@"
+    groupId: "@project.groupId@"
+    artifactId: "@project.artifactId@"
 
 logging:
   threshold:

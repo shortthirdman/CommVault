@@ -53,7 +53,9 @@ public class CommVaultRedisConfig {
                 .setAddress(Objects.requireNonNullElse(
                         redisProperties.getUrl(),
                         REDIS_PROTOCOL_PREFIX + redisProperties.getHost() + COLON + redisProperties.getPort()
-                ));
+                ))
+                .setDatabase(0)
+                .setPassword(redisPassword);
         return Redisson.create(redissonConfig);
     }
 
