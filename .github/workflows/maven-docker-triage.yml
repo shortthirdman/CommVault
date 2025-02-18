@@ -19,12 +19,20 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: shortthirdman/commvault # ${{ github.repository }}
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get PR event name
+        run: echo "The event type is ${{ github.event.action }}"
+      - name: Get branch name
+        run: echo "Branch name is ${{ github.head_ref }}"
+
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
@@ -43,7 +51,7 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      run: mvn -B clean package --file commvault-accounts/pom.xml
+      run: mvn -B clean package --file commvault-accounts/pom.xml -DskipTests
       
     - name: Attest Maven build provenance
       uses: actions/attest-build-provenance@v2
@@ -53,7 +61,7 @@ jobs:
         push-to-registry: false
     
     - name: Build the Docker image
-      run: docker build commvault-accounts/. --rm --compress --file commvault-accounts/Dockerfile-prod --tag shortthirdman/commvault:latest
+      run: docker build commvault-accounts/. --rm --compress --file commvault-accounts/Dockerfile-prod --tag "${{ env.IMAGE_NAME }}:latest"
     
     - name: Cleanup Docker resources
       run: docker system prune -a -f
