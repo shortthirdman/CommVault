@@ -16,6 +16,13 @@ server:
     accesslog:
       directory: logs
 
+info:
+  app:
+    name: "@project.description@"
+    version: "@project.version@"
+    author: "@project.organization.name@"
+    license: "@project.licenses[0].name@"
+
 logging:
   threshold:
     console: TRACE
@@ -23,8 +30,8 @@ logging:
   charset:
     console: UTF-8
   pattern:
-    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){green} %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %clr([%level]){magenta} %c{1.6} [%t] %m%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n"
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){green} %5p [${spring.application.name:CommVault},%X{traceId:-},%X{spanId:-}] %clr([%level]){magenta} %c{1.6} [%t] %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %5p [${spring.application.name:CommVault},%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n"
     dateformat: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
   file:
     name: ${logging.file.path}/app.log

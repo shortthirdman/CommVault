@@ -1,9 +1,4 @@
-# Read Me First
-The following was discovered as part of building this project:
-
-* The original package name 'com.shortthirdman.commvault-accounts' is invalid and this project uses 'com.shortthirdman.commvault_accounts' instead.
-
-# Getting Started
+# CommVault Accounts
 
 ### Reference Documentation
 For further reference, please consider the following sections:

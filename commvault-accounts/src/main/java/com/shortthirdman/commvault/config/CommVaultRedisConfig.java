@@ -1,7 +1,6 @@
 // Copyright (c) ShortThirdMan 2025. All rights reserved.
 package com.shortthirdman.commvault.config;
 
-import com.shortthirdman.commvault.model.UserAccount;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -19,10 +18,12 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
 import static com.shortthirdman.commvault.common.CommVaultConstants.COLON;
+import static com.shortthirdman.commvault.common.CommVaultConstants.REDIS_PROTOCOL_PREFIX;
 
 @Slf4j
 @Configuration
@@ -37,20 +38,24 @@ public class CommVaultRedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-//    @Bean(destroyMethod = "shutdown")
-//    public RedissonClient redissonClient(RedisProperties redisProperties) {
-//        Config redissonConfig = new Config()
-//                //.setCodec(ProtobufRedisCodec.INSTANCE)
-//                .setExecutor(Executors.newSingleThreadExecutor(new CustomizableThreadFactory("RedisExecutor-")));
-//
-//        redissonConfig
-//                .useSingleServer()
-//                .setAddress(Objects.requireNonNullElse(
-//                        redisProperties.getUrl(),
-//                        "redis://" + redisProperties.getHost() + COLON + redisProperties.getPort()
-//                ));
-//        return Redisson.create(redissonConfig);
-//    }
+    @Bean(destroyMethod = "shutdown")
+    public RedissonClient redissonClient(RedisProperties redisProperties) {
+        Config redissonConfig = new Config()
+//                .setCodec(ProtobufRedisCodec.INSTANCE)
+                .setExecutor(Executors.newSingleThreadExecutor(new CustomizableThreadFactory("RedisExecutor-")));
+
+        if (redisProperties.getHost() == null || redisProperties.getHost().isEmpty() || redisProperties.getPort() <= 0) {
+            throw new IllegalArgumentException("Redis host or port is null or empty");
+        }
+
+        redissonConfig
+                .useSingleServer()
+                .setAddress(Objects.requireNonNullElse(
+                        redisProperties.getUrl(),
+                        REDIS_PROTOCOL_PREFIX + redisProperties.getHost() + COLON + redisProperties.getPort()
+                ));
+        return Redisson.create(redissonConfig);
+    }
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
@@ -64,22 +69,9 @@ public class CommVaultRedisConfig {
         return jedisConnectionFactory;
     }
 
-    /*@Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration =
-                new RedisStandaloneConfiguration(redisHost, redisPort);
-        JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfig =
-                JedisClientConfiguration.builder();
-        jedisClientConfig.connectTimeout(Duration.ofMillis(10000));
-        jedisClientConfig.usePooling();
-        jedisClientConfig.useSsl();
-        redisStandaloneConfiguration.setPassword(RedisPassword.of(redisPassword));
-        return new JedisConnectionFactory(redisStandaloneConfiguration, jedisClientConfig.build());
-    }*/
-
     @Bean
-    public RedisTemplate<String, UserAccount> redisTemplate() {
-        RedisTemplate<String, UserAccount> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, Serializable> redisTemplate() {
+        RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());

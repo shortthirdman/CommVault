@@ -7,15 +7,18 @@ import com.shortthirdman.commvault.exception.RecordNotSavedException;
 import com.shortthirdman.commvault.exception.RecordsNotFoundException;
 import com.shortthirdman.commvault.model.UserAccount;
 import com.shortthirdman.commvault.service.AccountsService;
+import com.shortthirdman.commvault.service.CommVaultAdaptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.shortthirdman.commvault.common.CommVaultConstants.ACCOUNT_PREFIX;
 import static com.shortthirdman.commvault.common.CommVaultConstants.ASTERISK;
 import static com.shortthirdman.commvault.common.CommVaultConstants.COLON;
 
@@ -24,7 +27,7 @@ import static com.shortthirdman.commvault.common.CommVaultConstants.COLON;
 @RequiredArgsConstructor
 public class AccountsServiceImpl implements AccountsService {
 
-    private final RedisTemplate<String, UserAccount> redisTemplate;
+    private final CommVaultAdaptor adaptor;
 
     /**
      * @return list of user accounts
@@ -33,17 +36,15 @@ public class AccountsServiceImpl implements AccountsService {
     public List<UserAccount> allUserAccounts() {
         log.info("Retrieving all user accounts from cache");
         List<UserAccount> userAccounts = new ArrayList<>();
-        StringBuilder cacheKey = new StringBuilder("account:");
         try {
-            cacheKey.append(ASTERISK);
-            var keys = redisTemplate.keys(cacheKey.toString());
-            log.info("Total user accounts for key pattern {}: {}", cacheKey, keys.size());
+            var keys = adaptor.cacheKeys(ACCOUNT_PREFIX);
+            log.info("Total user accounts for key pattern {}: {}", ACCOUNT_PREFIX, keys.size());
             for (String k : keys) {
-                UserAccount obj = redisTemplate.opsForValue().get(k);
+                var obj = (UserAccount) adaptor.getData(k);
                 userAccounts.add(obj);
             }
             if (userAccounts.isEmpty()) {
-                throw new RecordsNotFoundException("No user accounts found for key pattern " + cacheKey);
+                throw new RecordsNotFoundException("No user accounts found for key pattern " + ACCOUNT_PREFIX);
             }
         } catch (Exception e) {
             log.error("Unable to get user accounts from cache: {}", ExceptionUtils.getFullStackTrace(e));
@@ -59,14 +60,14 @@ public class AccountsServiceImpl implements AccountsService {
      */
     @Override
     public List<UserAccount> userAccountsByOrganization(String orgId) {
+        log.info("Retrieving user accounts for organization {} from cache", orgId);
         List<UserAccount> userAccounts = new ArrayList<>();
-        StringBuilder cacheKey = new StringBuilder("account:");
         try {
-            cacheKey.append(orgId);
-            var keys = redisTemplate.keys(cacheKey.toString());
+            var cacheKey = ACCOUNT_PREFIX + orgId;
+            var keys = adaptor.cacheKeys(cacheKey);
             log.info("Total user accounts for key pattern with organization {}: {}", cacheKey, keys.size());
             for (String k : keys) {
-                UserAccount obj = redisTemplate.opsForValue().get(k);
+                var obj = (UserAccount) adaptor.getData(k);
                 userAccounts.add(obj);
             }
             if (userAccounts.isEmpty()) {
@@ -86,13 +87,13 @@ public class AccountsServiceImpl implements AccountsService {
     @Override
     public void createUserAccount(UserAccount userAccount) {
         log.info("Saving new user account with OrgID {}", userAccount.getOrgId());
-        StringBuilder cacheKey = new StringBuilder("account:");
+        StringBuilder cacheKey = new StringBuilder(ACCOUNT_PREFIX);
         try {
             if (userAccount.getCreatedTime() == null) {
                 userAccount.setCreatedTime(CommVaultUtils.currentDateTime());
             }
             cacheKey.append(userAccount.getOrgId());
-            redisTemplate.opsForValue().set(cacheKey.toString(), userAccount);
+            adaptor.saveData(cacheKey.toString(), userAccount);
             log.info("New user account for key {} saved", cacheKey);
         } catch (Exception e) {
             log.error("Unable to save user account {}: {}", cacheKey, ExceptionUtils.getFullStackTrace(e));
@@ -106,11 +107,11 @@ public class AccountsServiceImpl implements AccountsService {
     @Override
     public void deleteUserAccount(UserAccount userAccount) {
         log.info("Deleting user account with OrgID {}", userAccount.getOrgId());
-        StringBuilder cacheKey = new StringBuilder("account:");
+        StringBuilder cacheKey = new StringBuilder(ACCOUNT_PREFIX);
         try {
             cacheKey.append(userAccount.getOrgId());
-            redisTemplate.opsForValue().getAndDelete(cacheKey.toString());
-            log.info("User account with key {} deleted successfully", cacheKey);
+            var success = adaptor.delete(cacheKey.toString());
+            log.info("User account with key {} deleted successfully [{}]", cacheKey, success);
         } catch (Exception e) {
             log.error("Unable to delete the user account with key {}: {}", cacheKey, ExceptionUtils.getFullStackTrace(e));
             throw new CommVaultException("Record with key " + cacheKey + "could not be deleted");
@@ -118,12 +119,12 @@ public class AccountsServiceImpl implements AccountsService {
     }
 
     /**
-     * @param userAccount
+     * @param userAccount the user account to update
      */
     @Override
     public void updateUserAccount(UserAccount userAccount) {
         log.info("Attempting to update user account with organization {}", userAccount.getOrgId());
-        StringBuilder cacheKey = new StringBuilder("account:");
+        StringBuilder cacheKey = new StringBuilder(ACCOUNT_PREFIX);
         try {
             cacheKey.append(userAccount.getOrgId());
         } catch (Exception e) {
@@ -138,10 +139,11 @@ public class AccountsServiceImpl implements AccountsService {
     @Override
     public void deleteUserAccount(String orgId) {
         log.info("Attempting to delete user account with OrgID {}", orgId);
-        StringBuilder cacheKey = new StringBuilder("account:");
+        StringBuilder cacheKey = new StringBuilder(ACCOUNT_PREFIX);
         try {
             cacheKey.append(orgId).append(COLON);
-            redisTemplate.opsForValue().getAndDelete(cacheKey.toString());
+            var success = adaptor.delete(cacheKey.toString());
+            log.info("User account with organisation {} deleted successfully [{}]", orgId, success);
         } catch (Exception e) {
             log.error("Unable to delete the user account with organization {}: {}", orgId, ExceptionUtils.getFullStackTrace(e));
             throw new CommVaultException("Account with key " + cacheKey + "could not be deleted");

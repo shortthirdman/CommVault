@@ -13,14 +13,31 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CommVault Accounts</name>
 	<description>CommVault - Open Source Password Management</description>
-	<url/>
+	<url>https://github.com/shortthirdman-org/CommVault</url>
+	<organization>
+		<name>ShortThirdMan</name>
+		<url>https://github.com/shortthirdman-org</url>
+	</organization>
+	<inceptionYear>2025</inceptionYear>
 
 	<licenses>
-		<license/>
+		<license>
+			<name>Apache-2.0</name>
+			<url>https://opensource.org/licenses/Apache-2.0</url>
+		</license>
 	</licenses>
 
 	<developers>
-		<developer/>
+		<developer>
+			<id>author</id>
+			<name>Swetank Mohanty</name>
+			<organization>ShortThirdMan</organization>
+			<organizationUrl>https://www.github.com/shortthirdman-org</organizationUrl>
+			<email>swetank.mohanty@outlook.com</email>
+			<roles>
+				<role>Product Owner</role>
+			</roles>
+		</developer>
 	</developers>
 
 	<scm>
@@ -45,7 +62,7 @@
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/target/site/jacoco-merged-test-coverage-report/jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
-		<sonar.projectName>ServiceTemplate</sonar.projectName>
+		<sonar.projectName>CommVault</sonar.projectName>
 		<sonar.projectVersion>${project.version}</sonar.projectVersion>
 		<sonar.projectKey>commvault-accounts</sonar.projectKey>
 		<sonar.tests>${project.basedir}/src/test,${project.basedir}/src/integration-tests</sonar.tests>
@@ -282,6 +299,10 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<additionalProperties>
+						<java.version>${java.version}</java.version>
+						<description>${project.description}</description>
+						<author>${project.developers[0].name}</author>
+						<developer>${project.developers[0].name}</developer>
 					</additionalProperties>
 					<excludes>
 						<exclude>
@@ -297,6 +318,7 @@
 							<goal>build-info</goal>
 							<goal>repackage</goal>
 						</goals>
+						<phase>package</phase>
 					</execution>
 				</executions>
 			</plugin>
