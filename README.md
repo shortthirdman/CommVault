@@ -1,5 +1,8 @@
 # CommVault
+
 > An Open Source Password Management Tool
+
+[![CI](https://github.com/shortthirdman/CommVault/actions/workflows/maven-docker-triage.yml/badge.svg)](https://github.com/shortthirdman/CommVault/actions/workflows/maven-docker-triage.yml)
 
 **_CommVault_**, an open-source password management tool designed to securely store and manage passwords. Built using Java with Spring Boot 3.x and Spring Cloud, it leverages Redis Server for fast, in-memory data caching and HashiCorp Vault for robust, centralized secrets management. CommVault provides a highly scalable, secure solution for handling sensitive information, ideal for both small teams and enterprise-level applications.
 
