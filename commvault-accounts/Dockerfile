@@ -61,4 +61,7 @@ WORKDIR /app
 USER $APP_USER
 
 EXPOSE 8080
-ENTRYPOINT [ "java", "-jar", "/app/app.jar" ]
+
+HEALTHCHECK CMD curl --fail http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT [ "java", "-XX:MaxRAMPercentage=80.0", "-XX:+UseContainerSupport", "-jar", "/app/app.jar" ]

@@ -64,4 +64,4 @@ RUN curl -L -o opentelemetry-javaagent.jar "https://github.com/open-telemetry/op
 USER $APP_USER
 
 EXPOSE 8080
-CMD ["dumb-init", "java", "-jar", "/home/app/app.jar"]
+CMD ["dumb-init", "java", "-XX:MaxRAMPercentage=80.0", "-XX:+UseContainerSupport", "-jar", "/home/app/app.jar"]

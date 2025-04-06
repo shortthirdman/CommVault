@@ -18,4 +18,6 @@ public interface AccountsService {
     void updateUserAccount(UserAccount userAccount);
 
     void deleteUserAccount(String orgId);
+
+    void updatePassword(String orgId, String password);
 }

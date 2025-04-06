@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.shortthirdman.commvault.common.CommVaultConstants.SUCCESS;
 
@@ -100,6 +101,17 @@ public class AccountsController {
     @DeleteMapping(path = "/{orgId}")
     public ResponseEntity<CommVaultApiResponse> deleteUserAccount(@PathVariable(name = "orgId") @NonNull String orgId) {
         accountsService.deleteUserAccount(orgId);
+        CommVaultApiResponse response = CommVaultApiResponse.builder()
+                .status(SUCCESS)
+                .message("")
+                .description("")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(path = "/update")
+    public ResponseEntity<CommVaultApiResponse> updateAccountPassword(@Valid @RequestBody Map<String, String> accountMap) {
+        accountsService.updatePassword(accountMap.get("orgId"), accountMap.get("password"));
         CommVaultApiResponse response = CommVaultApiResponse.builder()
                 .status(SUCCESS)
                 .message("")

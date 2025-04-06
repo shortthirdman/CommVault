@@ -22,7 +22,7 @@ public class CommVaultHeaderInterceptor implements HandlerInterceptor {
         log.info("In the preHandle() method: Before sending request to controller :: {}", request);
         var apiSecret = request.getHeader("X-CommVault-Api-Token");
         if (Objects.isNull(apiSecret) || apiSecret.isEmpty()) {
-            log.error("");
+            log.error("CommVault API Token is missing");
             try {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write( "Forbidden: Invalid or missing CommVault API Token");
