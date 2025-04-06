@@ -45,8 +45,7 @@ public class CommVaultApplication {
 
 		var fullAppName = Arrays.stream(appName.split("-", -1))
 				.map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
-				.collect(Collectors.joining(" "));;
-
+				.collect(Collectors.joining(" "));
 		Info info = new Info()
 				.title("CommVault")
 				.version("1.0").contact(contact)
