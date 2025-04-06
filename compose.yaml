@@ -2,12 +2,14 @@ name: CommVault
 
 #version: "3"
 services:
-    commvault-redis:
+    redis:
         container_name: commvault-redis
         ports:
             - 6379:6379
             - 8001:8001
         restart: unless-stopped
+        networks:
+            - commvault-net
         logging:
             options:
                 max-size: 1g
@@ -16,18 +18,47 @@ services:
             - REDISTIMESERIES_ARGS=RETENTION_POLICY=20
         image: redis/redis-stack:6.2.6-v17 # redis/redis-stack-server:6.2.6-v17
     
-    commvault-accounts:
-        container_name: commvault-accounts
+    commvault:
+        container_name: commvault
         ports:
             - 8080:8080
         restart: unless-stopped
-        environment:
-          - SPRING_DATASOURCE_URL=
+        networks:
+            - commvault-net
         logging:
             options:
                 max-size: 1g
         depends_on:
-            commvault-redis:
+            redis:
                 condition: service_started
                 restart: true
-        image: shortthirdman-org/commvault-accounts:latest
+        image: shortthirdman/commvault-accounts:latest
+
+    # vault:
+        # image: hashicorp/vault:latest
+        # container_name: vault
+        # environment:
+          # - VAULT_ADDR=http://vault:8200
+          # - VAULT_API_ADDR=http://vault:8200
+          # - VAULT_CLUSTER_ADDR=http://vault:8201
+          # - VAULT_LOG_LEVEL=debug
+          # - VAULT_UI=true
+        # volumes:
+          # - ./vault-config/vault.hcl:/vault/config/vault.hcl
+          # - vault-data:/vault/data
+        # ports:
+          # - "8200:8200"
+          # - "8201:8201"
+        # networks:
+          # - commvault-net
+        # command: "server"
+        # restart: unless-stopped
+        # cap_add:
+          # - IPC_LOCK
+     
+networks:
+  commvault-net:
+    driver: bridge
+
+# volumes:
+  # vault-data:
