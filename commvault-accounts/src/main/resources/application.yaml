@@ -1,0 +1,152 @@
+server:
+  port: 8080
+  compression:
+    enabled: true
+  servlet:
+    application-display-name: ${spring.application.name}
+    context-path: /commvault
+    encoding:
+      charset: UTF-8
+  error:
+    include-message: always
+    whitelabel:
+      enabled: false
+  forward-headers-strategy: framework
+  tomcat:
+    accesslog:
+      directory: logs
+
+info:
+  app:
+    name: "@project.description@"
+    version: "@project.version@"
+    author: "@project.organization.name@"
+    license: "@project.licenses[0].name@"
+    groupId: "@project.groupId@"
+    artifactId: "@project.artifactId@"
+
+logging:
+  threshold:
+    console: TRACE
+    file: TRACE
+  charset:
+    console: UTF-8
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){green} %5p [${spring.application.name:CommVault},%X{traceId:-},%X{spanId:-}] %clr([%level]){magenta} %c{1.6} [%t] %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %5p [${spring.application.name:CommVault},%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n"
+    dateformat: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+  file:
+    name: ${logging.file.path}/app.log
+    path: logs
+  include-application-name: true
+
+spring:
+  application:
+    name: commvault-accounts
+  lifecycle:
+    timeout-per-shutdown-phase: 1m
+  cache:
+    type: none
+  codec:
+    log-request-details: true
+    max-in-memory-size: 2MB
+  info:
+    build:
+      encoding: UTF-8
+      location: classpath:META-INF/build-info.properties
+    git:
+      encoding: UTF-8
+      location: classpath:git.properties
+  mvc:
+    log-request-details: true
+    problemdetails:
+      enabled: true
+    format:
+      date-time: "yyyy-MM-dd HH:mm:ss"
+  gson:
+    date-format: ${spring.mvc.format.date-time}
+    pretty-printing: on
+    lenient: true
+  jackson:
+    date-format: ${spring.mvc.format.date-time}
+    default-leniency: true
+  quartz:
+    auto-startup: false
+    scheduler-name: commvault
+  data:
+    redis:
+      connect-timeout: 30000
+      host: localhost
+      port: 6379
+      password: "admin"
+
+springdoc:
+  cache:
+    disabled: false
+  show-actuator: false
+  remove-broken-reference-definitions: true
+  writer-with-default-pretty-printer: true
+  packages-to-scan: com.shortthirdman.commvault.controller
+  use-fqn: true
+  enable-spring-security: false
+  api-docs:
+    enabled: true
+    path: /api-docs
+    version: openapi-3-1
+    resolve-schema-properties: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tryItOutEnabled: true
+    filter: true
+    displayRequestDuration: true
+    showCommonExtensions: true
+    query-config-enabled: false
+
+management:
+  httpexchanges:
+    recording:
+      enabled: true
+      include: "*"
+  tracing:
+    sampling:
+      probability: 1.0
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  info:
+    env:
+      enabled: true
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    env:
+      show-values: always
+    health:
+      probes:
+        enabled: true
+      group:
+        custom:
+          show-components: always
+          show-details: always
+    quartz:
+      enabled: true
+    scheduledtasks:
+      enabled: true
+    shutdown:
+      enabled: true
+    startup:
+      enabled: true
+  endpoints:
+    enabled-by-default: true
+    web:
+      discovery:
+        enabled: true
+      exposure:
+        include: openapi, swagger-ui, *
