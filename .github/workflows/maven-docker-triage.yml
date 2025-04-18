@@ -12,8 +12,12 @@ on:
   workflow_dispatch:
   push:
     branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
+    paths:
+    - commvault-accounts
   pull_request:
     branches: [ "main", "feature/**", "bugfix/**", "hotfix/**" ]
+    paths:
+    - commvault-accounts
 
 env:
   # Use docker.io for Docker Hub if empty
